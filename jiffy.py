@@ -9,6 +9,7 @@
 #secondary names
 #unfriend
 #auth users dump and read json
+#@learn no equal sign
 
 
 
@@ -18,20 +19,20 @@ import json
 
 
 HOST = "irc.freenode.net" # Server to connect to
-HOME_CHANNEL = "#liberatedAria" # The home channel for your bot
-NICK = "Jiffy" # Your bots nick
+HOME_CHANNEL = "#irclib" # The home channel for your bot
+NICK = "Jiffy2" # Your bots nick
 PORT = 6667 # Port (it is normally 6667)
 SYMBOL = "@" #symbol eg. if set to # commands will be #echo.
 commFile = "commands.json"
-funcFile = "function.json"
+userFile = "user.json"
 blank = ""
 ##Learning New Commands####
 
 def learnNew(msg, cmd, CHANNEL, user, arg):
   global commandDict
   #load previous dict from file
-  with open(commFile, 'r') as f:
-    commandDict = json.load(f)
+  #with open(commFile, 'r') as f:
+  #  commandDict = json.load(f)
   
   #split keys and values on the equal sign
   value = msg.split("=")[1]
@@ -77,14 +78,12 @@ def forgetCmd(msg, cmd, CHANNEL, user, arg):
 
 
 def authenticateUser(user):
-  f = open("authUsers.txt")
-  for line in f:
-    if user in line:
-      out = True
-    else:
-      sendMessage('priv',CHANNEL, user + " is not permitted to make that decision")
-      out = False
-    return out
+  if user in userList:
+    out = True
+  else:
+    sendMessage('priv',CHANNEL, user + " is not permitted to make that decision")
+    out = False
+  return out
 
 def replyCmd(msg, user):
   if checkForLoop(msg, user):
@@ -95,14 +94,25 @@ def replyCmd(msg, user):
 
 def meetNew(msg, cmd, CHANNEL, user, arg):
   if authenticateUser(user):
-    user = msg.split(" ")[1]
-    with open("authUsers.txt", "a") as f:
-      f.write(user)
+    newUser = msg.split(" ")[1]
+    if newUser in userList:
+      sendMessage('priv', CHANNEL, user + ": We are already friends")
+    else:
+      userList.append(newUser)
+      with open(userFile, mode='w') as f:
+        json.dump(userList, f)
+      out = newUser + ": Nice to meet you"
+      sendMessage('priv', CHANNEL, out)
   else:
     return
 
 def breakUpWith(msg, cmd, CHANNEL, user, arg):
-  file('error.txt', 'w').writelines([l for l in file('validate.txt').readlines() if 'TRUE' not in l])
+  if authenticateUser(user):
+    removeUser = arg[1]
+    userList.remove(removeUser)
+    with open(userFile, mode='w') as f:
+      json.dump(userList, f)
+  return
    
 def ping(msg):
   s.send("PONG :"+ msg +"\r\n")
@@ -158,11 +168,17 @@ def connect(NICK, HOST, PORT, HOME_CHANNEL):
   s.send("NICK "+ NICK +"\r\n")
   s.send("JOIN "+ HOME_CHANNEL +"\r\n")
 
+
+
+
 connect(NICK, HOST, PORT, HOME_CHANNEL)
-#Loading Commands from last session
+#Loading information from last session
 
 with open(commFile, 'r') as f:
   commandDict = json.load(f)
+
+with open(userFile, 'r') as f:
+  userList = json.load(f)
 
 #Loading Function Commands
 funcDict = { "@learn": learnNew, "@forget": forgetCmd, "@befriend": meetNew, "@list": listKnown, "@unfriend": breakUpWith}
@@ -202,156 +218,3 @@ while 1:
       elif cmd in commandDict:
         out = replyCmd(cmd, user)
         sendMessage("priv", CHANNEL, out)
-
-
-
-##        if "hello " + NICK ==cmd:
-##          hello(user)
-##          print "recieved hello"
-##        elif "hey " + NICK ==cmd:
-##          hello(user)
-##          "print recieved hello"
-##        elif "hi " + NICK ==cmd:
-##          hello(user)
-##          "print recieved hello"
-##        elif SYMBOL + "join"==cmd and len(arg) > 1:
-##          x = line.split(" ", 4)
-##          newchannel = x[4]
-##          joinchan(newchannel)
-##        elif SYMBOL + "leave"==cmd and len(arg) > 1:
-##          x = line.split(" ", 4)
-##          newchannel = x[4]
-##          partchan(newchannel)
-##        elif SYMBOL + "quit"==cmd:
-##          quitIRC()
-##        elif SYMBOL + "coke"==cmd and len(arg) > 1:
-##          x = line.split(" ")
-##          recvr = x[4]
-##          coke(recvr)
-##        elif SYMBOL + "pepsi"==cmd and len(arg) > 1:
-##          x = line.split(" ")
-##          recvr = x[4]
-##          pepsi(recvr)
-##        elif SYMBOL + "fish"==cmd and len(arg) > 1:
-##          x = line.split(" ")
-##          recvr = x[4]
-##          fish(recvr)
-##        elif SYMBOL + "bomb"==cmd and len(arg) > 1:
-##          x = line.split(" ")
-##          recvr = x[4]
-##          bomb(recvr)
-##        elif SYMBOL + "fish"==cmd:
-##          sandwich(user)
-##        elif SYMBOL + "cake"==cmd:
-##          cake(user)
-##        elif SYMBOL + "echo"==cmd:
-##          x = msg.split(" ", 1)[1]
-##          echo(x)
-##        elif "ask"==cmd:
-##          ask(user)
-##        
-##        elif line.find(""+ SYMBOL +"load") != -1:
-##          plugin = msg.split(" ")[1]
-##          load(plugin)
-##       
-##        elif line.find(""+ SYMBOL +"unload") != -1:
-##          plugin = msg.split(" ")[1]
-##          unload(plugin)
-##       
-##        elif SYMBOL in cmd:
-##          fail()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##def joinchan(channel):
-##  s.send("PRIVMSG "+ CHANNEL +" :Joining "+ channel +"\r\n")
-##  s.send("JOIN "+ channel +"\r\n")
-##def partchan(channel):
-##  s.send("PRIVMSG "+ CHANNEL +" :Leaving "+ channel +"\r\n")
-##  s.send("PART "+ channel +"\r\n")
-##def hello(user):
-##  s.send("PRIVMSG "+ CHANNEL +" :G'day "+ nick +"!\n")
-##def quitIRC():
-##  s.send("QUIT "+ CHANNEL +"\n")
-##def kickme(target, reason):
-##  s.send("KICK "+ CHANNEL +" "+ target +" "+ reason + "\n")
-##def fail():
-##  s.send("PRIVMSG "+ CHANNEL +" :Either you do not have the permission to do that, or that is not a valid command.\n")
-##def fish(user):
-##  s.send("PRIVMSG "+ CHANNEL +" :\x01ACTION slaps "+ user +" with a wet sloppy tuna fish.\x01\r\n")
-##  time.sleep(1)
-##  s.send("PRIVMSG "+ CHANNEL +" :take that bitch\n")
-##def sandwich(sender):
-##  if food == True:
-##     s.send("PRIVMSG "+ CHANNEL +" :\x01ACTION is making "+ sender +" a sandwich\x01\r\n")
-##     time.sleep(10)
-##     s.send("PRIVMSG "+ CHANNEL +" :\x01ACTION has finished making "+ sender +"'s sandwhich\x01\r\n")
-##     time.sleep(1)
-##     s.send("PRIVMSG "+ CHANNEL +" :Here you go "+ sender +"! I hope you enjoy it!\r\n")
-##  else:
-##     s.send("PRIVMSG "+ CHANNEL +" :Command not loaded\r\n")
-##def makeitem(nick, item):
-##  s.send("PRIVMSG "+ CHANNEL +" :\x01ACTION is making "+ nick +" a "+ item +"\x01\r\n")
-##  time.sleep(10)
-##  s.send("PRIVMSG "+ CHANNEL +" :\x01ACTION has finished making "+ nick +"'s "+ item +"\x01\r\n")
-##  time.sleep(1)
-##  s.send("PRIVMSG "+ CHANNEL +" :Here you go "+ nick +"! I hope you enjoy it!\r\n")
-##def bomb(user):
-##  s.send("PRIVMSG "+ CHANNEL +" :\x01ACTION hurls a bomb in "+ user +"'s direction.\x01\r\n")
-##  time.sleep(0.5)
-##  s.send("PRIVMSG "+ CHANNEL +" :BOOM!\n")
-##  s.send("PRIVMSG "+ CHANNEL +" :\x01ACTION bomb explodes.\x01\r\n")
-##  s.send("KICK ##aussiepowder "+ user +" Bombed\n")
-##  time.sleep(1.75)
-##  s.send("PRIVMSG "+ CHANNEL +" :and you thought you could take a bot with such awesomeness! pfft\n")
-##def cake(sender):
-##   if food == True: 
-##     s.send("PRIVMSG "+ CHANNEL +" :\x01ACTION is making "+ sender +" a cake\x01\r\n")
-##     time.sleep(10)
-##     s.send("PRIVMSG "+ CHANNEL +" :\x01ACTION has finished making "+ sender +"'s cake\x01\r\n")
-##     time.sleep(1)
-##     s.send("PRIVMSG "+ CHANNEL +" :Here you go "+ sender +"! I hope you enjoy it!\r\n")
-##   else:
-##     s.send("PRIVMSG "+ CHANNEL +" :Command not loaded\r\n")
-##
-##def ask(sender):
-##  s.send("PRIVMSG "+ CHANNEL +" :Do not ask if you can ask a question but instead just ask it\r\n")
-##def echo(message):
-##  s.send("PRIVMSG "+ CHANNEL +" :"+ message +"\r\n") 
-##def pepsi(user):
-##  if food == True:
-##     s.send("PRIVMSG "+ CHANNEL +" :\x01ACTION dispenses a can of Pepsi for "+ user +"\x01\r\n")
-##  else:
-##     s.send("PRIVMSG "+ CHANNEL +" :Command not loaded\r\n")
-##def coke(user):
-##  if food == True:
-##     s.send("PRIVMSG "+ CHANNEL +" :\x01ACTION dispenses a can of Coke for "+ user +"\x01\r\n")
-##  else:
-##     s.send("PRIVMSG "+ CHANNEL +" :Command not loaded\r\n")
-##def load(plugin):
-##  if plugin =="food":
-##     global food
-##     food = True
-##     s.send("PRIVMSG "+ CHANNEL +" :LOADED the FOOD plugin\r\n")
-##  else:
-##      s.send("PRIVMSG "+ CHANNEL +" :UNKNOWN plugin\r\n")
-##     
-##def unload(plugin):
-##  if plugin =="food":
-##     global food
-##     food = False
-##     s.send("PRIVMSG "+ CHANNEL +" :UNLOADED the FOOD plugin\r\n")
-##  else:
-##     s.send("PRIVMSG "+ CHANNEL +" :UNKNOWN plugin\r\n")
-##

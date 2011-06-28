@@ -1,0 +1,54 @@
+This program was written after trying to setup a few of the different
+free irc bot programs and finding that they do not fit my needs. This
+bot is written in Python and is my first venture into Python. Updates
+should be frequent.
+
+If you have any question, comments or testimonies then please submit 
+an issue at https://github.com/ktilcu/jiffy-bot/issues/new.
+
+Summary:
+=====================
+
+The main focus of this IRC Bot is to respond to stored commands with 
+stored responses without the need of a symbol. It also has commands 
+that require authentication of the user calling the commands. All 
+administrative commands do require a symbol. The currently available 
+commands are in the usage block.
+
+Usage:
+=====================
+
+To start the bot and connect it to a channel you will need to set the
+variables at the top of the jiffy.py. Specifically:
+
+	HOST			The IRC hostname
+	HOME_CHANNEL	The default channel
+	NICK			The default nick
+	PORT			The default port
+	SYMBOL 			The administrative symbol
+
+Setting these will allow you to connect to a server and start using 
+the bot.
+
+The currently available commands are as follows:
+	
+	@learn <key>=<response> : 	Where <key> is the text that the bot 
+								will respond to with <response>. 
+								EXAMPLE:
+								@learn hello=Hello There.
+
+	@forget <key> :				Where <key> is a key currently in
+								memory that Jiffy will no longer
+								respond to.
+								EXAMPLE:
+								@forget hello
+
+	@list :						Lists the currently memorized <key>'s
+								Authentiaceted Users only
+
+	@befreiend <user> : 		Where <user> is the user you would
+								like to add to allow access to
+								administrative functions.
+								These functions include:
+									@befriend
+									@list

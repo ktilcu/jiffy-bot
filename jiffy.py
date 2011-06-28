@@ -7,9 +7,7 @@
 #int in commands
 #remove case sensitive
 #secondary names
-#unfriend
-#auth users dump and read json
-#@learn no equal sign
+#@learn no equal sign error handling
 
 
 

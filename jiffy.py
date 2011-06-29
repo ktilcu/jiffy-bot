@@ -195,6 +195,8 @@ while 1:
     pingcmd = line.split(":", 1)
     pingmsg = pingcmd[1]
     ping(pingmsg)
+  elif "MODE" + HOME_CHANNEL + " +b" in line:
+    sendMessage('priv', HOME_CHANNEL, "Another one bites the dust")
   elif "KICK " + HOME_CHANNEL + " " + NICK in line:
     join(HOME_CHANNEL)
   elif "PRIVMSG" in line:

@@ -8,6 +8,7 @@
 #remove case sensitive
 #secondary names
 #@learn no equal sign error handling
+#@die and @reload
 
 
 
@@ -110,6 +111,7 @@ def breakUpWith(msg, cmd, CHANNEL, user, arg):
     userList.remove(removeUser)
     with open(userFile, mode='w') as f:
       json.dump(userList, f)
+    out = user + ", you stupid jerk."
   return
    
 def ping(msg):

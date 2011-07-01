@@ -106,14 +106,14 @@ def meetNew(msg, cmd, CHANNEL, user, arg):
     return
 
 def breakUpWith(msg, cmd, CHANNEL, user, arg):
-  if authenticateUser(user) and user in userList:
-    removeUser = arg[1]
+  removeUser = arg[1]
+  if authenticateUser(user) and removeUser in userList:
     userList.remove(removeUser)
     with open(userFile, mode='w') as f:
       json.dump(userList, f)
-    out = user + ", you stupid jerk."
+    out = removeUser + ", you stupid jerk."
     sendMessage('priv', CHANNEL, out)
-  else 
+  else: 
     out = "I'm not their friend..."
     sendMessage('priv', CHANNEL, out)
   return

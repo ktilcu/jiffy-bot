@@ -18,8 +18,8 @@ import json
 
 
 HOST = "irc.freenode.net" # Server to connect to
-HOME_CHANNEL = "#irclib" # The home channel for your bot
-NICK = "Jiffy2" # Your bots nick
+HOME_CHANNEL = "#liberatedAria" # The home channel for your bot
+NICK = "Jiffy" # Your bots nick
 PORT = 6667 # Port (it is normally 6667)
 SYMBOL = "@" #symbol eg. if set to # commands will be #echo.
 commFile = "commands.json"
@@ -106,12 +106,16 @@ def meetNew(msg, cmd, CHANNEL, user, arg):
     return
 
 def breakUpWith(msg, cmd, CHANNEL, user, arg):
-  if authenticateUser(user):
+  if authenticateUser(user) and user in userList:
     removeUser = arg[1]
     userList.remove(removeUser)
     with open(userFile, mode='w') as f:
       json.dump(userList, f)
     out = user + ", you stupid jerk."
+    sendMessage('priv', CHANNEL, out)
+  else 
+    out = "I'm not their friend..."
+    sendMessage('priv', CHANNEL, out)
   return
    
 def ping(msg):
